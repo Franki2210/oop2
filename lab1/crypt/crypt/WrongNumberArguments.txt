@@ -1,0 +1,3 @@
+Invalid arguments count
+For encryption usage: crypt.exe crypt <input file> <output file> key
+For decryption usage: crypt.exe decrypt <input file> <output file> key

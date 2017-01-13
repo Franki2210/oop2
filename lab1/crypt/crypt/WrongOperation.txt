@@ -1,0 +1,1 @@
+Wrong operating input, use <crypt> or <decrypt>
