@@ -1,18 +1,21 @@
 #pragma once
-#pragma once
 
 template <typename T>
 class CMyStack
 {
 	struct Node
 	{
+		Node(const T & data)
+			:data(data)
+			, next(nullptr)
+		{};
 		T data;
 		Node *next;
 	};
 public:
 	CMyStack() = default;
 
-	CMyStack(CMyStack<T> & stack)
+	CMyStack(CMyStack<T> const & stack)
 	{
 		*this = stack;
 	}
@@ -29,7 +32,7 @@ public:
 
 	void Push(const T & data)
 	{
-		Node *node = RawAlloc(data);
+		Node *node = CreateNode(data);
 		node->next = m_top;
 		m_top = node;
 		++m_size;
@@ -75,18 +78,17 @@ public:
 		return m_size;
 	}
 
-	const CMyStack & operator =(const CMyStack<T> & stack)
+	CMyStack & operator =(const CMyStack<T> & stack)
 	{
 		if (std::addressof(stack) != this)
 		{
-			Clear();
 			Copy(stack);
 		}
 
 		return *this;
 	}
 
-	const CMyStack & operator =(CMyStack && stack)
+	CMyStack & operator =(CMyStack && stack)
 	{
 		if (std::addressof(stack) != this)
 		{
@@ -100,41 +102,28 @@ public:
 	}
 
 private:
-	static Node *RawAlloc(const T & data)
+	static Node *CreateNode(const T & data)
 	{
-		Node *node = new Node;
-		try
-		{
-			node->data = data;
-		}
-		catch (...)
-		{
-			delete node;
-			throw;
-		}
-
-		return node;
+		return new Node(data);
 	}
 
 	void Copy(const CMyStack<T> & stack)
 	{
 		if (!stack.IsEmpty())
 		{
-			Push(stack.GetTopElement());
-
-			Node *thisPtr = m_top;
-			Node *rhsPtr = stack.m_top->next;
-
-			while (rhsPtr != nullptr)
+			Node *tempNode = stack.m_top;
+			Node *tempStack = new Node(tempNode->data);
+			Node *headTempStack = tempStack;
+			tempNode = tempNode->next;
+			while (tempNode != nullptr)
 			{
-				Node *node = RawAlloc(rhsPtr->data);
-				node->next = nullptr;
-				thisPtr->next = node;
+				tempStack->next = new Node(tempNode->data);
 
-				thisPtr = thisPtr->next;
-				rhsPtr = rhsPtr->next;
+				tempStack = tempStack->next;
+				tempNode = tempNode->next;
 			}
-
+			Clear();
+			m_top = headTempStack;
 			m_size = stack.GetSize();
 		}
 	}
