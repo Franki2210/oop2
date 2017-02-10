@@ -77,12 +77,24 @@ CStringStack & CStringStack::operator =(const CStringStack &stack)
 			Node *tempStack = new Node(tempNode->data);
 			Node *headTempStack = tempStack;
 			tempNode = tempNode->next;
-			while (tempNode != nullptr)
+			try
 			{
-				tempStack->next = new Node(tempNode->data);
+				while (tempNode != nullptr)
+				{
+					tempStack->next = new Node(tempNode->data);
 
-				tempStack = tempStack->next;
-				tempNode = tempNode->next;
+					tempStack = tempStack->next;
+					tempNode = tempNode->next;
+				}
+			}
+			catch (...)
+			{
+				while (headTempStack != nullptr)
+				{
+					Node *deleteNode = headTempStack;
+					headTempStack = headTempStack->next;
+					delete deleteNode;
+				}
 			}
 			Clear();
 			m_top = headTempStack;
@@ -97,10 +109,33 @@ CStringStack & CStringStack::operator =(CStringStack &&stack)
 {
 	if (std::addressof(stack) != this)
 	{
-		m_top = stack.m_top;
-		m_size = stack.m_size;
-		stack.m_top = nullptr;
-		stack.m_size = 0;
+		Node *temp_m_top = m_top;
+		size_t temp_m_size = m_size;
+
+		Node *stack_m_top = stack.m_top;
+		size_t stack_m_size = stack.m_size;
+
+		try
+		{
+			m_top = stack.m_top;
+			m_size = stack.m_size;
+			stack.m_top = nullptr;
+			stack.m_size = 0;
+		}
+		catch (...)
+		{
+			m_top = temp_m_top;
+			m_size = temp_m_size;
+			stack.m_top = stack_m_top;
+			stack.m_size = stack_m_size;
+		}
+
+		while (temp_m_top != nullptr)
+		{
+			Node *deleteNode = temp_m_top;
+			temp_m_top = temp_m_top->next;
+			delete deleteNode;
+		}
 	}
 
 	return *this;
