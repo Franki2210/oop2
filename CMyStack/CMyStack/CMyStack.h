@@ -32,7 +32,7 @@ public:
 
 	void Push(const T & data)
 	{
-		Node *node = CreateNode(data);
+		Node *node = new Node(data);
 		node->next = m_top;
 		m_top = node;
 		++m_size;
@@ -92,44 +92,17 @@ public:
 	{
 		if (std::addressof(stack) != this)
 		{
-			Node *temp_m_top = m_top;
-			size_t temp_m_size = m_size;
-
-			Node *stack_m_top = stack.m_top;
-			size_t stack_m_size = stack.m_size;
-
-			try
-			{
-				m_top = stack.m_top;
-				m_size = stack.m_size;
-				stack.m_top = nullptr;
-				stack.m_size = 0;
-			}
-			catch (...)
-			{
-				m_top = temp_m_top;
-				m_size = temp_m_size;
-				stack.m_top = stack_m_top;
-				stack.m_size = stack_m_size;
-			}
-
-			while (temp_m_top != nullptr)
-			{
-				Node *deleteNode = temp_m_top;
-				temp_m_top = temp_m_top->next;
-				delete deleteNode;
-			}
+			Clear();
+			m_top = stack.m_top;
+			m_size = stack.m_size;
+			stack.m_top = nullptr;
+			stack.m_size = 0;
 		}
 
 		return *this;
 	}
 
 private:
-	static Node *CreateNode(const T & data)
-	{
-		return new Node(data);
-	}
-
 	void Copy(const CMyStack<T> & stack)
 	{
 		if (!stack.IsEmpty())
@@ -147,6 +120,9 @@ private:
 					tempStack = tempStack->next;
 					tempNode = tempNode->next;
 				}
+				Clear();
+				m_top = headTempStack;
+				m_size = stack.GetSize();
 			}
 			catch (...)
 			{
@@ -157,9 +133,6 @@ private:
 					delete deleteNode;
 				}
 			}
-			Clear();
-			m_top = headTempStack;
-			m_size = stack.GetSize();
 		}
 		else
 		{
