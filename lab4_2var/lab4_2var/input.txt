@@ -1,3 +1,0 @@
-Rectangle 10.3 20.15 30.7 40.4 ff0000 00ff00
-Line 20 30 10 23.5 f304a5
-Circle 10 10 -5 0000ff ffffff
